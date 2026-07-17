@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import routes, stops, trips
+from app.api.v1.endpoints import planner, routes, stops, trips
 
 api_router = APIRouter(prefix="/api/v1")
 
@@ -13,3 +13,4 @@ async def health() -> dict[str, str]:
 api_router.include_router(stops.router)
 api_router.include_router(routes.router)
 api_router.include_router(trips.router)
+api_router.include_router(planner.router)
