@@ -4,62 +4,55 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme.dart';
+import '../../../../core/widgets/page_header.dart';
 import '../../../../core/widgets/route_badge.dart';
+import '../../../../core/widgets/segmented_tab_bar.dart';
 import '../../../../core/widgets/status_views.dart';
 import '../providers/stops_providers.dart';
 
-/// Stop search (server-side) with a "nearby" mode using the device location.
-class StopsPage extends ConsumerStatefulWidget {
+/// Stop search (server-side) and a "nearby" tab using the device location.
+class StopsPage extends ConsumerWidget {
   const StopsPage({super.key});
 
   @override
-  ConsumerState<StopsPage> createState() => _StopsPageState();
-}
-
-class _StopsPageState extends ConsumerState<StopsPage> {
-  bool _nearbyMode = false;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Stops')),
-      body: Column(
-        children: [
-          Padding(
-            padding: Insets.page,
-            child: SearchBar(
-              hintText: 'Search stops…',
-              leading: const Icon(CupertinoIcons.search, size: 20),
-              onChanged: (value) {
-                setState(() => _nearbyMode = false);
-                ref.read(stopSearchQueryProvider.notifier).set(value);
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: Insets.md),
-            child: SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(
-                  value: false,
-                  label: Text('Search'),
-                  icon: Icon(CupertinoIcons.search, size: 18),
+      body: SafeArea(
+        bottom: false,
+        child: DefaultTabController(
+          length: 2,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const PageHeader(
+                title: 'Stops',
+                subtitle: 'Find departures around the city',
+              ),
+              Padding(
+                padding: Insets.page,
+                child: SearchBar(
+                  hintText: 'Search stops…',
+                  leading: const Icon(CupertinoIcons.search, size: 20),
+                  onChanged: (value) =>
+                      ref.read(stopSearchQueryProvider.notifier).set(value),
                 ),
-                ButtonSegment(
-                  value: true,
-                  label: Text('Nearby'),
-                  icon: Icon(CupertinoIcons.location, size: 18),
+              ),
+              const SizedBox(height: Insets.md),
+              const SegmentedTabBar(
+                tabs: [
+                  Tab(text: 'Search', height: 40),
+                  Tab(text: 'Nearby', height: 40),
+                ],
+              ),
+              const SizedBox(height: Insets.sm),
+              const Expanded(
+                child: TabBarView(
+                  children: [_SearchList(), _NearbyList()],
                 ),
-              ],
-              selected: {_nearbyMode},
-              onSelectionChanged: (selection) =>
-                  setState(() => _nearbyMode = selection.first),
-            ),
+              ),
+            ],
           ),
-          Expanded(
-            child: _nearbyMode ? const _NearbyList() : const _SearchList(),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -80,24 +73,50 @@ class _StopTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return ListTile(
       leading: IconBadge(icon: icon),
-      title: Text(
-        name,
-        style: Theme.of(
-          context,
-        ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
-      ),
+      title: Text(name, style: theme.textTheme.titleSmall),
       subtitle: subtitle == null
           ? null
           : Text(
               subtitle!,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodySmall
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
-      trailing: const Icon(CupertinoIcons.chevron_right, size: 16),
+      trailing: Icon(
+        CupertinoIcons.chevron_right,
+        size: 16,
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
       onTap: () => context.go('/stops/$stopId'),
+    );
+  }
+}
+
+/// Stops rendered as one card with hairline separators — the shared list
+/// treatment for both tabs.
+class _StopListCard extends StatelessWidget {
+  const _StopListCard({required this.tiles});
+
+  final List<Widget> tiles;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: Insets.page.copyWith(top: Insets.sm, bottom: Insets.xl),
+      children: [
+        Card(
+          child: Column(
+            children: [
+              for (final (index, tile) in tiles.indexed) ...[
+                if (index > 0) const Divider(indent: 72),
+                tile,
+              ],
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -119,19 +138,16 @@ class _SearchList extends ConsumerWidget {
               message: 'No stops match your search.',
               icon: CupertinoIcons.search,
             )
-          : ListView.separated(
-              itemCount: stops.length,
-              separatorBuilder: (_, _) =>
-                  const Divider(indent: 72, endIndent: Insets.lg),
-              itemBuilder: (context, index) {
-                final stop = stops[index];
-                return _StopTile(
-                  stopId: stop.id,
-                  name: stop.name,
-                  icon: CupertinoIcons.map_pin_ellipse,
-                  subtitle: stop.code,
-                );
-              },
+          : _StopListCard(
+              tiles: [
+                for (final stop in stops)
+                  _StopTile(
+                    stopId: stop.id,
+                    name: stop.name,
+                    icon: CupertinoIcons.map_pin_ellipse,
+                    subtitle: stop.code,
+                  ),
+              ],
             ),
     );
   }
@@ -154,19 +170,16 @@ class _NearbyList extends ConsumerWidget {
               message: 'No stops within 1 km.',
               icon: CupertinoIcons.location,
             )
-          : ListView.separated(
-              itemCount: stops.length,
-              separatorBuilder: (_, _) =>
-                  const Divider(indent: 72, endIndent: Insets.lg),
-              itemBuilder: (context, index) {
-                final stop = stops[index];
-                return _StopTile(
-                  stopId: stop.id,
-                  name: stop.name,
-                  icon: CupertinoIcons.location,
-                  subtitle: '${stop.distanceM.round()} m away',
-                );
-              },
+          : _StopListCard(
+              tiles: [
+                for (final stop in stops)
+                  _StopTile(
+                    stopId: stop.id,
+                    name: stop.name,
+                    icon: CupertinoIcons.location,
+                    subtitle: '${stop.distanceM.round()} m away',
+                  ),
+              ],
             ),
     );
   }

@@ -78,24 +78,36 @@ class _ShellScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: shell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: shell.currentIndex,
-        onDestinationSelected: shell.goBranch,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(CupertinoIcons.map_pin_ellipse),
-            label: 'Stops',
+      bottomNavigationBar: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(CupertinoIcons.map),
-            label: 'Routes',
-          ),
-          NavigationDestination(
-            icon: Icon(CupertinoIcons.arrow_swap),
-            label: 'Planner',
-          ),
-          NavigationDestination(icon: Icon(CupertinoIcons.bus), label: 'Live'),
-        ],
+        ),
+        child: NavigationBar(
+          selectedIndex: shell.currentIndex,
+          onDestinationSelected: shell.goBranch,
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(CupertinoIcons.map_pin_ellipse),
+              label: 'Stops',
+            ),
+            NavigationDestination(
+              icon: Icon(CupertinoIcons.map),
+              label: 'Routes',
+            ),
+            NavigationDestination(
+              icon: Icon(CupertinoIcons.arrow_swap),
+              label: 'Planner',
+            ),
+            NavigationDestination(
+              icon: Icon(CupertinoIcons.bus),
+              label: 'Live',
+            ),
+          ],
+        ),
       ),
     );
   }

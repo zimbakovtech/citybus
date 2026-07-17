@@ -33,14 +33,11 @@ class StopDetailPage extends ConsumerWidget {
             padding: Insets.page,
             children: [
               if (stop.code != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: Insets.sm),
-                  child: Text(
-                    'Stop code ${stop.code}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
+                Text(
+                  'Stop code ${stop.code}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
               const SectionHeader(title: 'Lines'),
               Wrap(
@@ -51,7 +48,7 @@ class StopDetailPage extends ConsumerWidget {
                     RouteBadge(
                       label: route.shortName ?? '?',
                       color: route.color,
-                      size: 36,
+                      size: 38,
                     ),
                 ],
               ),
@@ -110,9 +107,9 @@ class _DepartureTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final minutesAway = departure.departureAt
-        .difference(DateTime.now())
-        .inMinutes;
+    final minutesAway =
+        departure.departureAt.difference(DateTime.now()).inMinutes;
+    final imminent = minutesAway >= 0 && minutesAway <= 10;
     return ListTile(
       leading: RouteBadge(
         label: departure.route.shortName ?? '?',
@@ -120,20 +117,21 @@ class _DepartureTile extends StatelessWidget {
       ),
       title: Text(
         departure.headsign ?? departure.route.longName ?? '',
-        style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+        style: theme.textTheme.titleSmall,
       ),
       subtitle: minutesAway >= 0 && minutesAway <= 90
           ? Text(
               minutesAway == 0 ? 'Due now' : 'In $minutesAway min',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: imminent
+                    ? theme.colorScheme.secondary
+                    : theme.colorScheme.onSurfaceVariant,
               ),
             )
           : null,
       trailing: Text(
         DateFormat.Hm().format(departure.departureAt),
         style: theme.textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.w700,
           fontFeatures: const [FontFeature.tabularFigures()],
         ),
       ),

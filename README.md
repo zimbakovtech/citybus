@@ -1,4 +1,4 @@
-# CityBus — City Bus Transit System
+# CityBus - City Bus Transit System
 
 [![CI](https://github.com/zimbakovtech/citybus/actions/workflows/ci.yml/badge.svg)](https://github.com/zimbakovtech/citybus/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](backend/requirements.txt)
@@ -106,8 +106,6 @@ erDiagram
   stop_times { bigint trip_id PK  int stop_sequence PK  bigint stop_id FK  interval arrival_time  interval departure_time }
   vehicle_positions { bigint id PK  text vehicle_id  bigint trip_id FK  bigint current_stop_id FK  geometry geom  int delay_seconds  timestamptz recorded_at }
 ```
-
-(Source: [docs/erd.mmd](docs/erd.mmd).)
 
 ## Route planner
 

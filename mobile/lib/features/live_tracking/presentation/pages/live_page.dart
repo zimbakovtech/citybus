@@ -10,7 +10,8 @@ import '../../../../core/widgets/status_views.dart';
 import '../../data/models/live_models.dart';
 import '../providers/live_providers.dart';
 
-/// Live map of simulated vehicles; markers move as WebSocket updates arrive.
+/// Full-bleed live map of simulated vehicles; markers move as WebSocket
+/// updates arrive. A floating header replaces the app bar.
 class LivePage extends ConsumerWidget {
   const LivePage({super.key});
 
@@ -18,12 +19,13 @@ class LivePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final vehicles = ref.watch(liveVehiclesProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Live buses')),
       body: vehicles.when(
         loading: () => const LoadingView(),
-        error: (error, _) => ErrorView(
-          message: error.toString(),
-          onRetry: () => ref.invalidate(liveVehiclesProvider),
+        error: (error, _) => SafeArea(
+          child: ErrorView(
+            message: error.toString(),
+            onRetry: () => ref.invalidate(liveVehiclesProvider),
+          ),
         ),
         data: (fleet) => Stack(
           children: [
@@ -42,36 +44,83 @@ class LivePage extends ConsumerWidget {
                 ),
               ],
             ),
-            Positioned(
-              top: Insets.md,
-              left: Insets.lg,
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Insets.md,
-                    vertical: Insets.sm,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        CupertinoIcons.bus,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: Insets.sm),
-                      Text(
-                        '${fleet.length} on the road',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
+            SafeArea(
+              child: Padding(
+                padding: Insets.page.copyWith(top: Insets.sm),
+                child: Row(
+                  children: [
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: Insets.lg,
+                          vertical: Insets.md,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const _LiveDot(),
+                            const SizedBox(width: Insets.sm),
+                            Text(
+                              'Live buses',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(width: Insets.md),
+                            Text(
+                              '${fleet.length}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Small pulsing dot signalling a live connection.
+class _LiveDot extends StatefulWidget {
+  const _LiveDot();
+
+  @override
+  State<_LiveDot> createState() => _LiveDotState();
+}
+
+class _LiveDotState extends State<_LiveDot>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1200),
+  )..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: Tween(begin: 0.4, end: 1.0).animate(_controller),
+      child: Container(
+        width: 10,
+        height: 10,
+        decoration: const BoxDecoration(
+          color: Color(0xFF16A34A),
+          shape: BoxShape.circle,
         ),
       ),
     );
@@ -84,10 +133,10 @@ class _VehicleMarker extends StatelessWidget {
   final LiveVehicle vehicle;
 
   Color get _delayColor => switch (vehicle.delaySeconds) {
-    <= 60 => const Color(0xFF2E7D32),
-    <= 240 => const Color(0xFFE65100),
-    _ => const Color(0xFFC62828),
-  };
+        <= 60 => const Color(0xFF16A34A),
+        <= 240 => const Color(0xFFEA580C),
+        _ => const Color(0xFFDC2626),
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -103,9 +152,6 @@ class _VehicleMarker extends StatelessWidget {
             color: scheme.primary,
             borderRadius: BorderRadius.circular(Radii.sm),
             border: Border.all(color: scheme.surface, width: 2),
-            boxShadow: const [
-              BoxShadow(blurRadius: 4, color: Color(0x33000000)),
-            ],
           ),
           child: Icon(CupertinoIcons.bus, size: 14, color: scheme.onPrimary),
         ),
@@ -117,11 +163,12 @@ class _VehicleMarker extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: _delayColor,
-            borderRadius: BorderRadius.circular(Radii.sm - 2),
+            borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
             '${vehicle.routeShortName ?? '?'} +${(vehicle.delaySeconds / 60).round()}m',
             style: const TextStyle(
+              fontFamily: 'Outfit',
               color: Colors.white,
               fontSize: 9,
               fontWeight: FontWeight.w700,
