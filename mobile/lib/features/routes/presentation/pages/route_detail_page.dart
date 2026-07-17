@@ -5,7 +5,9 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../../app/theme.dart';
 import '../../../../core/widgets/osm_map.dart';
+import '../../../../core/widgets/segmented_tab_bar.dart';
 import '../../../../core/widgets/status_views.dart';
+import '../../../../core/widgets/timeline_rail.dart';
 import '../../../stops/data/models/stop_models.dart';
 import '../providers/routes_providers.dart';
 
@@ -19,12 +21,29 @@ class RouteDetailPage extends ConsumerStatefulWidget {
   ConsumerState<RouteDetailPage> createState() => _RouteDetailPageState();
 }
 
-class _RouteDetailPageState extends ConsumerState<RouteDetailPage> {
-  int _direction = 0;
+class _RouteDetailPageState extends ConsumerState<RouteDetailPage>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final args = (routeId: widget.routeId, directionId: _direction);
+    final direction = _tabController.index;
+    final args = (routeId: widget.routeId, directionId: direction);
     final detail = ref.watch(routeDetailProvider(widget.routeId));
     final shape = ref.watch(routeShapeProvider(args));
     final stops = ref.watch(routeStopsProvider(args));
@@ -33,21 +52,6 @@ class _RouteDetailPageState extends ConsumerState<RouteDetailPage> {
       appBar: AppBar(
         title: Text(
           detail.value == null ? 'Route' : 'Line ${detail.value!.shortName}',
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(56),
-          child: Padding(
-            padding: Insets.page.copyWith(bottom: Insets.md),
-            child: SegmentedButton<int>(
-              segments: const [
-                ButtonSegment(value: 0, label: Text('Outbound')),
-                ButtonSegment(value: 1, label: Text('Inbound')),
-              ],
-              selected: {_direction},
-              onSelectionChanged: (selection) =>
-                  setState(() => _direction = selection.first),
-            ),
-          ),
         ),
       ),
       body: detail.when(
@@ -65,87 +69,107 @@ class _RouteDetailPageState extends ConsumerState<RouteDetailPage> {
                 child: Text(
                   route.longName!,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              ),
+            SegmentedTabBar(
+              controller: _tabController,
+              tabs: const [
+                Tab(text: 'Outbound', height: 40),
+                Tab(text: 'Inbound', height: 40),
+              ],
+            ),
+            const SizedBox(height: Insets.md),
+            Expanded(
+              flex: 3,
+              child: Padding(
+                padding: Insets.page,
+                child: Card(
+                  child: shape.when(
+                    loading: () => const LoadingView(),
+                    error: (error, _) => ErrorView(message: error.toString()),
+                    data: (geo) {
+                      final points = [
+                        // GeoJSON coordinates are [lon, lat]
+                        for (final pair in geo.coordinates)
+                          LatLng(pair[1], pair[0]),
+                      ];
+                      return OsmMap(
+                        center: points.isEmpty
+                            ? skopjeCenter
+                            : points[points.length ~/ 2],
+                        layers: [
+                          PolylineLayer(
+                            polylines: [
+                              Polyline(
+                                points: points,
+                                strokeWidth: 4,
+                                color: routeColor(route.color),
+                              ),
+                            ],
+                          ),
+                          MarkerLayer(
+                            markers: [
+                              for (final stop
+                                  in stops.value ?? const <StopSummary>[])
+                                Marker(
+                                  point: LatLng(stop.lat, stop.lon),
+                                  width: 12,
+                                  height: 12,
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color:
+                                          Theme.of(context).colorScheme.surface,
+                                      border: Border.all(
+                                        color: routeColor(route.color),
+                                        width: 3,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),
-            Expanded(
-              flex: 3,
-              child: shape.when(
-                loading: () => const LoadingView(),
-                error: (error, _) => ErrorView(message: error.toString()),
-                data: (geo) {
-                  final points = [
-                    // GeoJSON coordinates are [lon, lat]
-                    for (final pair in geo.coordinates)
-                      LatLng(pair[1], pair[0]),
-                  ];
-                  return OsmMap(
-                    center: points.isEmpty
-                        ? skopjeCenter
-                        : points[points.length ~/ 2],
-                    layers: [
-                      PolylineLayer(
-                        polylines: [
-                          Polyline(
-                            points: points,
-                            strokeWidth: 4,
-                            color: routeColor(route.color),
-                          ),
-                        ],
-                      ),
-                      MarkerLayer(
-                        markers: [
-                          for (final stop
-                              in stops.value ?? const <StopSummary>[])
-                            Marker(
-                              point: LatLng(stop.lat, stop.lon),
-                              width: 12,
-                              height: 12,
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Theme.of(context).colorScheme.surface,
-                                  border: Border.all(
-                                    color: routeColor(route.color),
-                                    width: 3,
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
-                  );
-                },
-              ),
             ),
+            const SizedBox(height: Insets.md),
             Expanded(
               flex: 2,
               child: stops.when(
                 loading: () => const LoadingView(),
                 error: (error, _) => ErrorView(message: error.toString()),
-                data: (items) => ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: Insets.sm),
+                data: (items) => ListView.builder(
+                  padding: Insets.page.copyWith(bottom: Insets.lg),
                   itemCount: items.length,
-                  separatorBuilder: (_, _) =>
-                      const Divider(indent: 64, endIndent: Insets.lg),
                   itemBuilder: (context, index) {
-                    final isTerminus = index == 0 || index == items.length - 1;
-                    return ListTile(
-                      dense: true,
-                      leading: _StopIndex(
-                        index: index + 1,
-                        color: routeColor(route.color),
-                        emphasized: isTerminus,
-                      ),
-                      title: Text(
-                        items[index].name,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: isTerminus
-                              ? FontWeight.w700
-                              : FontWeight.w400,
-                        ),
+                    final isFirst = index == 0;
+                    final isLast = index == items.length - 1;
+                    return SizedBox(
+                      height: 44,
+                      child: Row(
+                        children: [
+                          TimelineRail(
+                            color: routeColor(route.color),
+                            drawTop: !isFirst,
+                            drawBottom: !isLast,
+                            emphasized: isFirst || isLast,
+                          ),
+                          const SizedBox(width: Insets.md),
+                          Expanded(
+                            child: Text(
+                              items[index].name,
+                              style: (isFirst || isLast)
+                                  ? Theme.of(context).textTheme.titleSmall
+                                  : Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ),
+                        ],
                       ),
                     );
                   },
@@ -153,40 +177,6 @@ class _RouteDetailPageState extends ConsumerState<RouteDetailPage> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Numbered marker for the ordered stop list, tinted with the route color.
-class _StopIndex extends StatelessWidget {
-  const _StopIndex({
-    required this.index,
-    required this.color,
-    required this.emphasized,
-  });
-
-  final int index;
-  final Color color;
-  final bool emphasized;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 28,
-      height: 28,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: emphasized ? color : color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(Radii.sm),
-      ),
-      child: Text(
-        '$index',
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          color: emphasized ? Colors.white : color,
         ),
       ),
     );

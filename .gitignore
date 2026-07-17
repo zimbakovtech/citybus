@@ -12,7 +12,9 @@ venv/
 .env
 
 # --- Data (real GTFS feeds go here; the synthetic seed feed IS committed) ---
-data/
+# anchored to the repo root: feature `data/` layers in the Flutter app must
+# NOT be ignored (unanchored `data/` once swallowed mobile/lib/features/*/data)
+/data/
 
 # --- Flutter / Dart ---
 mobile/.dart_tool/

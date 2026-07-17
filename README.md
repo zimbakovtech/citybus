@@ -1,4 +1,4 @@
-# CityBus — City Bus Transit System
+# CityBus - City Bus Transit System
 
 [![CI](https://github.com/zimbakovtech/citybus/actions/workflows/ci.yml/badge.svg)](https://github.com/zimbakovtech/citybus/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](backend/requirements.txt)
@@ -106,8 +106,6 @@ erDiagram
   stop_times { bigint trip_id PK  int stop_sequence PK  bigint stop_id FK  interval arrival_time  interval departure_time }
   vehicle_positions { bigint id PK  text vehicle_id  bigint trip_id FK  bigint current_stop_id FK  geometry geom  int delay_seconds  timestamptz recorded_at }
 ```
-
-(Source: [docs/erd.mmd](docs/erd.mmd).)
 
 ## Route planner
 
@@ -222,11 +220,9 @@ Interactive docs at **http://localhost:8000/docs** once the backend runs.
 
 ## Screenshots
 
-*(placeholder — add emulator screenshots of the four screens here)*
-
-| Stops | Route map | Planner | Live |
-|---|---|---|---|
-| … | … | … | … |
+| Stops | Routes | Stop detail | Planner | Live |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/stops.png" width="160" alt="Stop search and nearby tabs" /> | <img src="docs/screenshots/routes.png" width="160" alt="Route list" /> | <img src="docs/screenshots/stop_lines.png" width="160" alt="Stop detail with lines and departures" /> | <img src="docs/screenshots/planner.png" width="160" alt="Journey planner" /> | <img src="docs/screenshots/live.png" width="160" alt="Live vehicle map" /> |
 
 ## Notes
 
@@ -238,6 +234,13 @@ Interactive docs at **http://localhost:8000/docs** once the backend runs.
   (API key).
 - Out of scope by design: authentication, accounts, payments, deployment —
   the focus is the database.
+
+---
+
+## Contributing
+
+Branching and merge rules (main/develop, squash vs merge commits, naming,
+releases): [docs/git-workflow.md](docs/git-workflow.md).
 
 ---
 

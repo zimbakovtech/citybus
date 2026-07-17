@@ -61,6 +61,13 @@ class PlannerForm extends Notifier<PlannerFormState> {
       state = state.copyWith(destination: endpoint);
 
   void setDepartAt(DateTime value) => state = state.copyWith(departAt: value);
+
+  /// Swap origin and destination (either may still be unset).
+  void swap() => state = PlannerFormState(
+        origin: state.destination,
+        destination: state.origin,
+        departAt: state.departAt,
+      );
 }
 
 final plannerFormProvider = NotifierProvider<PlannerForm, PlannerFormState>(
