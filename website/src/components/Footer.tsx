@@ -1,4 +1,3 @@
-import { Bus } from 'lucide-react'
 import { GITHUB_URL } from '../lib/constants'
 
 const LINKS = [
@@ -14,9 +13,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 sm:px-6 md:flex-row md:items-start md:justify-between">
         <div className="max-w-sm">
           <div className="flex items-center gap-2.5">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-blue-600 text-white">
-              <Bus className="size-5" aria-hidden="true" />
-            </span>
+            <img src="/favicon.svg" alt="" className="size-9" />
             <span className="font-display text-lg font-bold tracking-tight text-white">
               CityBus
             </span>
