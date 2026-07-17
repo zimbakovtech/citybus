@@ -237,6 +237,13 @@ Interactive docs at **http://localhost:8000/docs** once the backend runs.
 
 ---
 
+## Contributing
+
+Branching and merge rules (main/develop, squash vs merge commits, naming,
+releases): [docs/git-workflow.md](docs/git-workflow.md).
+
+---
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
