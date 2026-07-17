@@ -220,11 +220,9 @@ Interactive docs at **http://localhost:8000/docs** once the backend runs.
 
 ## Screenshots
 
-*(placeholder — add emulator screenshots of the four screens here)*
-
-| Stops | Route map | Planner | Live |
-|---|---|---|---|
-| … | … | … | … |
+| Stops | Routes | Stop detail | Planner | Live |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/stops.png" width="160" alt="Stop search and nearby tabs" /> | <img src="docs/screenshots/routes.png" width="160" alt="Route list" /> | <img src="docs/screenshots/stop_lines.png" width="160" alt="Stop detail with lines and departures" /> | <img src="docs/screenshots/planner.png" width="160" alt="Journey planner" /> | <img src="docs/screenshots/live.png" width="160" alt="Live vehicle map" /> |
 
 ## Notes
 
