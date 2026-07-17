@@ -10,7 +10,8 @@ class CityBusApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'CityBus',
-      theme: buildTheme(),
+      theme: buildTheme(Brightness.light),
+      darkTheme: buildTheme(Brightness.dark),
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );

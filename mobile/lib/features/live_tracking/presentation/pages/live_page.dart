@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../../app/theme.dart';
 import '../../../../core/widgets/osm_map.dart';
 import '../../../../core/widgets/status_views.dart';
 import '../../data/models/live_models.dart';
@@ -20,7 +22,7 @@ class LivePage extends ConsumerWidget {
       body: vehicles.when(
         loading: () => const LoadingView(),
         error: (error, _) => ErrorView(
-          message: 'Realtime connection failed: $error',
+          message: error.toString(),
           onRetry: () => ref.invalidate(liveVehiclesProvider),
         ),
         data: (fleet) => Stack(
@@ -32,8 +34,8 @@ class LivePage extends ConsumerWidget {
                     for (final vehicle in fleet.values)
                       Marker(
                         point: LatLng(vehicle.lat, vehicle.lon),
-                        width: 46,
-                        height: 46,
+                        width: 52,
+                        height: 52,
                         child: _VehicleMarker(vehicle: vehicle),
                       ),
                   ],
@@ -41,9 +43,34 @@ class LivePage extends ConsumerWidget {
               ],
             ),
             Positioned(
-              top: 8,
-              left: 8,
-              child: Chip(label: Text('${fleet.length} buses on the road')),
+              top: Insets.md,
+              left: Insets.lg,
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Insets.md,
+                    vertical: Insets.sm,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        CupertinoIcons.bus,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: Insets.sm),
+                      Text(
+                        '${fleet.length} on the road',
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelLarge
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -58,37 +85,44 @@ class _VehicleMarker extends StatelessWidget {
   final LiveVehicle vehicle;
 
   Color get _delayColor => switch (vehicle.delaySeconds) {
-        <= 60 => Colors.green,
-        <= 240 => Colors.orange,
-        _ => Colors.red,
+        <= 60 => const Color(0xFF2E7D32),
+        <= 240 => const Color(0xFFE65100),
+        _ => const Color(0xFFC62828),
       };
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: const EdgeInsets.all(4),
+          width: 28,
+          height: 28,
+          alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 2),
+            color: scheme.primary,
+            borderRadius: BorderRadius.circular(Radii.sm),
+            border: Border.all(color: scheme.surface, width: 2),
+            boxShadow: const [
+              BoxShadow(blurRadius: 4, color: Color(0x33000000)),
+            ],
           ),
-          child: const Icon(Icons.directions_bus, size: 16, color: Colors.white),
+          child: Icon(CupertinoIcons.bus, size: 14, color: scheme.onPrimary),
         ),
+        const SizedBox(height: 2),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+          padding: const EdgeInsets.symmetric(horizontal: Insets.xs, vertical: 1),
           decoration: BoxDecoration(
             color: _delayColor,
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(Radii.sm - 2),
           ),
           child: Text(
             '${vehicle.routeShortName ?? '?'} +${(vehicle.delaySeconds / 60).round()}m',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 9,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),

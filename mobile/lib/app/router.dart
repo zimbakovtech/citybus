@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -73,10 +74,22 @@ class _ShellScaffold extends StatelessWidget {
         selectedIndex: shell.currentIndex,
         onDestinationSelected: shell.goBranch,
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.pin_drop_outlined), label: 'Stops'),
-          NavigationDestination(icon: Icon(Icons.route_outlined), label: 'Routes'),
-          NavigationDestination(icon: Icon(Icons.alt_route), label: 'Planner'),
-          NavigationDestination(icon: Icon(Icons.directions_bus_outlined), label: 'Live'),
+          NavigationDestination(
+            icon: Icon(CupertinoIcons.map_pin_ellipse),
+            label: 'Stops',
+          ),
+          NavigationDestination(
+            icon: Icon(CupertinoIcons.map),
+            label: 'Routes',
+          ),
+          NavigationDestination(
+            icon: Icon(CupertinoIcons.arrow_swap),
+            label: 'Planner',
+          ),
+          NavigationDestination(
+            icon: Icon(CupertinoIcons.bus),
+            label: 'Live',
+          ),
         ],
       ),
     );

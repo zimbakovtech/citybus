@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme.dart';
+import '../../../../core/widgets/route_badge.dart';
 import '../../../../core/widgets/status_views.dart';
 import '../providers/routes_providers.dart';
 
@@ -18,10 +20,10 @@ class RoutesPage extends ConsumerWidget {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            padding: Insets.page.copyWith(bottom: Insets.md),
             child: SearchBar(
               hintText: 'Search routes…',
-              leading: const Icon(Icons.search),
+              leading: const Icon(CupertinoIcons.search, size: 20),
               onChanged: (value) =>
                   ref.read(routeSearchQueryProvider.notifier).set(value),
             ),
@@ -34,20 +36,41 @@ class RoutesPage extends ConsumerWidget {
                 onRetry: () => ref.invalidate(routeSearchResultsProvider),
               ),
               data: (routes) => routes.isEmpty
-                  ? const EmptyView(message: 'No routes match your search.')
-                  : ListView.builder(
+                  ? const EmptyView(
+                      message: 'No routes match your search.',
+                      icon: CupertinoIcons.search,
+                    )
+                  : ListView.separated(
                       itemCount: routes.length,
+                      separatorBuilder: (_, _) =>
+                          const Divider(indent: 72, endIndent: Insets.lg),
                       itemBuilder: (context, index) {
                         final route = routes[index];
                         return ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: routeColor(route.color),
-                            child: Text(
-                              route.shortName ?? '?',
-                              style: const TextStyle(color: Colors.white, fontSize: 13),
-                            ),
+                          leading: RouteBadge(
+                            label: route.shortName ?? '?',
+                            color: route.color,
                           ),
-                          title: Text(route.longName ?? 'Line ${route.shortName}'),
+                          title: Text(
+                            route.longName ?? 'Line ${route.shortName}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                            'Line ${route.shortName}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                          ),
+                          trailing:
+                              const Icon(CupertinoIcons.chevron_right, size: 16),
                           onTap: () => context.go('/routes/${route.id}'),
                         );
                       },

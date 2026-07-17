@@ -33,13 +33,12 @@ class _RouteDetailPageState extends ConsumerState<RouteDetailPage> {
         title: Text(
           detail.value == null
               ? 'Route'
-              : 'Line ${detail.value!.shortName} — ${detail.value!.longName}',
-          overflow: TextOverflow.ellipsis,
+              : 'Line ${detail.value!.shortName}',
         ),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
+          preferredSize: const Size.fromHeight(56),
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+            padding: Insets.page.copyWith(bottom: Insets.md),
             child: SegmentedButton<int>(
               segments: const [
                 ButtonSegment(value: 0, label: Text('Outbound')),
@@ -59,7 +58,18 @@ class _RouteDetailPageState extends ConsumerState<RouteDetailPage> {
           onRetry: () => ref.invalidate(routeDetailProvider(widget.routeId)),
         ),
         data: (route) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (route.longName != null)
+              Padding(
+                padding: Insets.page.copyWith(bottom: Insets.md),
+                child: Text(
+                  route.longName!,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              ),
             Expanded(
               flex: 3,
               child: shape.when(
@@ -92,7 +102,7 @@ class _RouteDetailPageState extends ConsumerState<RouteDetailPage> {
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.white,
+                                  color: Theme.of(context).colorScheme.surface,
                                   border: Border.all(
                                     color: routeColor(route.color),
                                     width: 3,
@@ -113,18 +123,67 @@ class _RouteDetailPageState extends ConsumerState<RouteDetailPage> {
                 loading: () => const LoadingView(),
                 error: (error, _) => ErrorView(message: error.toString()),
                 data: (items) => ListView.separated(
+                  padding: const EdgeInsets.symmetric(vertical: Insets.sm),
                   itemCount: items.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
-                  itemBuilder: (context, index) => ListTile(
-                    dense: true,
-                    leading: Text('${index + 1}',
-                        style: Theme.of(context).textTheme.labelLarge),
-                    title: Text(items[index].name),
-                  ),
+                  separatorBuilder: (_, _) =>
+                      const Divider(indent: 64, endIndent: Insets.lg),
+                  itemBuilder: (context, index) {
+                    final isTerminus = index == 0 || index == items.length - 1;
+                    return ListTile(
+                      dense: true,
+                      leading: _StopIndex(
+                        index: index + 1,
+                        color: routeColor(route.color),
+                        emphasized: isTerminus,
+                      ),
+                      title: Text(
+                        items[index].name,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: isTerminus
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
+                            ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Numbered marker for the ordered stop list, tinted with the route color.
+class _StopIndex extends StatelessWidget {
+  const _StopIndex({
+    required this.index,
+    required this.color,
+    required this.emphasized,
+  });
+
+  final int index;
+  final Color color;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 28,
+      height: 28,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: emphasized ? color : color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(Radii.sm),
+      ),
+      child: Text(
+        '$index',
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: emphasized ? Colors.white : color,
         ),
       ),
     );

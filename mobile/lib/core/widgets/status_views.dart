@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
+
+import '../../app/theme.dart';
 
 /// Shared loading / error / empty states so every screen renders them the
 /// same way.
@@ -18,18 +21,38 @@ class ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(Insets.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 40),
-            const SizedBox(height: 12),
-            Text(message, textAlign: TextAlign.center),
+            _StatusIcon(
+              icon: CupertinoIcons.exclamationmark_triangle,
+              background: theme.colorScheme.errorContainer,
+              foreground: theme.colorScheme.onErrorContainer,
+            ),
+            const SizedBox(height: Insets.lg),
+            Text(
+              'Something went wrong',
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: Insets.xs),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
             if (onRetry != null) ...[
-              const SizedBox(height: 12),
-              FilledButton(onPressed: onRetry, child: const Text('Retry')),
+              const SizedBox(height: Insets.lg),
+              FilledButton.tonalIcon(
+                onPressed: onRetry,
+                icon: const Icon(CupertinoIcons.arrow_clockwise, size: 18),
+                label: const Text('Retry'),
+              ),
             ],
           ],
         ),
@@ -39,17 +62,65 @@ class ErrorView extends StatelessWidget {
 }
 
 class EmptyView extends StatelessWidget {
-  const EmptyView({super.key, required this.message});
+  const EmptyView({
+    super.key,
+    required this.message,
+    this.icon = CupertinoIcons.tray,
+  });
 
   final String message;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Text(message, textAlign: TextAlign.center),
+        padding: const EdgeInsets.all(Insets.xl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _StatusIcon(
+              icon: icon,
+              background: theme.colorScheme.surfaceContainerHigh,
+              foreground: theme.colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: Insets.lg),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+}
+
+class _StatusIcon extends StatelessWidget {
+  const _StatusIcon({
+    required this.icon,
+    required this.background,
+    required this.foreground,
+  });
+
+  final IconData icon;
+  final Color background;
+  final Color foreground;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 56,
+      height: 56,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(Radii.lg),
+      ),
+      child: Icon(icon, size: 28, color: foreground),
     );
   }
 }

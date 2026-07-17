@@ -1,8 +1,11 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../app/theme.dart';
+import '../../../../core/widgets/route_badge.dart';
+import '../../../../core/widgets/section_header.dart';
 import '../../../../core/widgets/status_views.dart';
 import '../../../stops/data/models/stop_models.dart';
 import '../../../stops/presentation/providers/stops_providers.dart';
@@ -22,61 +25,44 @@ class PlannerPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Planner')),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: Insets.page,
         children: [
-          _EndpointTile(
-            label: 'From',
-            icon: Icons.trip_origin,
-            endpoint: form.origin,
-            onChanged: (endpoint) =>
-                ref.read(plannerFormProvider.notifier).setOrigin(endpoint),
-          ),
-          _EndpointTile(
-            label: 'To',
-            icon: Icons.flag_outlined,
-            endpoint: form.destination,
-            onChanged: (endpoint) =>
-                ref.read(plannerFormProvider.notifier).setDestination(endpoint),
-          ),
-          ListTile(
-            leading: const Icon(Icons.schedule),
-            title: Text(
-              form.departAt == null
-                  ? 'Leave now'
-                  : 'Leave at ${DateFormat('EEE d MMM, HH:mm').format(form.departAt!)}',
+          const SizedBox(height: Insets.sm),
+          Card(
+            child: Column(
+              children: [
+                _EndpointTile(
+                  label: 'From',
+                  icon: CupertinoIcons.smallcircle_fill_circle,
+                  endpoint: form.origin,
+                  onChanged: (endpoint) =>
+                      ref.read(plannerFormProvider.notifier).setOrigin(endpoint),
+                ),
+                const Divider(indent: 56),
+                _EndpointTile(
+                  label: 'To',
+                  icon: CupertinoIcons.flag,
+                  endpoint: form.destination,
+                  onChanged: (endpoint) => ref
+                      .read(plannerFormProvider.notifier)
+                      .setDestination(endpoint),
+                ),
+                const Divider(indent: 56),
+                _DepartureTimeTile(form: form),
+              ],
             ),
-            trailing: const Icon(Icons.edit_outlined),
-            onTap: () async {
-              final now = DateTime.now();
-              final date = await showDatePicker(
-                context: context,
-                initialDate: form.departAt ?? now,
-                firstDate: now.subtract(const Duration(days: 1)),
-                lastDate: now.add(const Duration(days: 365)),
-              );
-              if (date == null || !context.mounted) return;
-              final time = await showTimePicker(
-                context: context,
-                initialTime: TimeOfDay.fromDateTime(form.departAt ?? now),
-              );
-              if (time == null) return;
-              ref.read(plannerFormProvider.notifier).setDepartAt(
-                    DateTime(date.year, date.month, date.day, time.hour, time.minute),
-                  );
-            },
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: Insets.lg),
           FilledButton.icon(
-            icon: const Icon(Icons.alt_route),
+            icon: const Icon(CupertinoIcons.arrow_swap, size: 18),
             label: const Text('Plan journey'),
             onPressed: form.ready
                 ? () => ref.read(planControllerProvider.notifier).submit()
                 : null,
           ),
-          const SizedBox(height: 16),
           plan.when(
             loading: () => const Padding(
-              padding: EdgeInsets.all(24),
+              padding: EdgeInsets.all(Insets.xl),
               child: LoadingView(),
             ),
             error: (error, _) => ErrorView(
@@ -87,6 +73,7 @@ class PlannerPage extends ConsumerWidget {
                 ? const SizedBox.shrink()
                 : _PlanResult(plan: result),
           ),
+          const SizedBox(height: Insets.xl),
         ],
       ),
     );
@@ -108,16 +95,28 @@ class _EndpointTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final title = switch (endpoint) {
+    final theme = Theme.of(context);
+    final value = switch (endpoint) {
       StopEndpoint(:final stop) => stop.name,
       MyLocationEndpoint() => 'My location',
       null => 'Choose a stop…',
     };
     return ListTile(
-      leading: Icon(icon),
-      title: Text('$label: $title'),
+      leading: Icon(icon, size: 22, color: theme.colorScheme.primary),
+      title: Text(
+        label,
+        style: theme.textTheme.labelSmall
+            ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+      ),
+      subtitle: Text(
+        value,
+        style: theme.textTheme.bodyLarge?.copyWith(
+          fontWeight: FontWeight.w600,
+          color: endpoint == null ? theme.colorScheme.onSurfaceVariant : null,
+        ),
+      ),
       trailing: IconButton(
-        icon: const Icon(Icons.my_location),
+        icon: const Icon(CupertinoIcons.location, size: 20),
         tooltip: 'Use my location',
         onPressed: () => onChanged(const MyLocationEndpoint()),
       ),
@@ -128,6 +127,54 @@ class _EndpointTile extends ConsumerWidget {
           builder: (context) => const _StopPickerSheet(),
         );
         if (stop != null) onChanged(StopEndpoint(stop));
+      },
+    );
+  }
+}
+
+class _DepartureTimeTile extends ConsumerWidget {
+  const _DepartureTimeTile({required this.form});
+
+  final PlannerFormState form;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    return ListTile(
+      leading: Icon(
+        CupertinoIcons.clock,
+        size: 22,
+        color: theme.colorScheme.primary,
+      ),
+      title: Text(
+        'Departure',
+        style: theme.textTheme.labelSmall
+            ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+      ),
+      subtitle: Text(
+        form.departAt == null
+            ? 'Leave now'
+            : DateFormat('EEE d MMM, HH:mm').format(form.departAt!),
+        style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+      ),
+      trailing: const Icon(CupertinoIcons.chevron_right, size: 16),
+      onTap: () async {
+        final now = DateTime.now();
+        final date = await showDatePicker(
+          context: context,
+          initialDate: form.departAt ?? now,
+          firstDate: now.subtract(const Duration(days: 1)),
+          lastDate: now.add(const Duration(days: 365)),
+        );
+        if (date == null || !context.mounted) return;
+        final time = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.fromDateTime(form.departAt ?? now),
+        );
+        if (time == null) return;
+        ref.read(plannerFormProvider.notifier).setDepartAt(
+              DateTime(date.year, date.month, date.day, time.hour, time.minute),
+            );
       },
     );
   }
@@ -154,10 +201,11 @@ class _StopPickerSheetState extends ConsumerState<_StopPickerSheet> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(Insets.lg),
               child: SearchBar(
                 hintText: 'Search stops…',
                 autoFocus: true,
+                leading: const Icon(CupertinoIcons.search, size: 20),
                 onChanged: (value) => setState(() => _query = value),
               ),
             ),
@@ -171,10 +219,13 @@ class _StopPickerSheetState extends ConsumerState<_StopPickerSheet> {
                   }
                   if (!snapshot.hasData) return const LoadingView();
                   final stops = snapshot.data!;
-                  return ListView.builder(
+                  return ListView.separated(
                     itemCount: stops.length,
+                    separatorBuilder: (_, _) =>
+                        const Divider(indent: 72, endIndent: Insets.lg),
                     itemBuilder: (context, index) => ListTile(
-                      leading: const Icon(Icons.pin_drop_outlined),
+                      leading:
+                          const IconBadge(icon: CupertinoIcons.map_pin_ellipse),
                       title: Text(stops[index].name),
                       onTap: () => Navigator.pop(context, stops[index]),
                     ),
@@ -199,86 +250,156 @@ class _PlanResult extends StatelessWidget {
     if (!plan.found) {
       return const EmptyView(
         message: 'No route found for that time. Try a different departure.',
+        icon: CupertinoIcons.slash_circle,
       );
     }
+    final theme = Theme.of(context);
     final duration = Duration(seconds: plan.durationSeconds ?? 0);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        const SectionHeader(title: 'Journey'),
         Card(
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(Insets.lg),
             child: Column(
               children: [
                 Text(
                   '${DateFormat.Hm().format(plan.departAt)} → '
                   '${DateFormat.Hm().format(plan.arriveAt!)}',
-                  style: Theme.of(context).textTheme.titleLarge,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: Insets.xs),
                 Text(
                   '${duration.inMinutes} min · '
                   '${plan.transfers} transfer${plan.transfers == 1 ? '' : 's'}',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
               ],
             ),
           ),
         ),
+        const SizedBox(height: Insets.md),
         for (final leg in plan.legs)
           switch (leg) {
-            PlanRideLeg() => _RideLegTile(leg: leg),
-            PlanTransferLeg() => _TransferLegTile(leg: leg),
+            PlanRideLeg() => _RideLegCard(leg: leg),
+            PlanTransferLeg() => _TransferRow(leg: leg),
           },
       ],
     );
   }
 }
 
-class _RideLegTile extends StatelessWidget {
-  const _RideLegTile({required this.leg});
+class _RideLegCard extends StatelessWidget {
+  const _RideLegCard({required this.leg});
 
   final PlanRideLeg leg;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final timeStyle = theme.textTheme.bodyMedium?.copyWith(
+      fontWeight: FontWeight.w700,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
     return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: routeColor(leg.route.color),
-          child: Text(
-            leg.route.shortName ?? '?',
-            style: const TextStyle(color: Colors.white, fontSize: 13),
-          ),
+      child: Padding(
+        padding: const EdgeInsets.all(Insets.lg),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            RouteBadge(label: leg.route.shortName ?? '?', color: leg.route.color),
+            const SizedBox(width: Insets.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _LegStopRow(
+                    name: leg.boardStop.name,
+                    time: DateFormat.Hm().format(leg.boardTime),
+                    timeStyle: timeStyle,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: Insets.xs),
+                    child: Text(
+                      '${leg.numStops} stops',
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                  ),
+                  _LegStopRow(
+                    name: leg.alightStop.name,
+                    time: DateFormat.Hm().format(leg.alightTime),
+                    timeStyle: timeStyle,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        title: Text(
-          '${leg.boardStop.name} (${DateFormat.Hm().format(leg.boardTime)}) → '
-          '${leg.alightStop.name} (${DateFormat.Hm().format(leg.alightTime)})',
-        ),
-        subtitle: Text('${leg.numStops} stops'),
       ),
     );
   }
 }
 
-class _TransferLegTile extends StatelessWidget {
-  const _TransferLegTile({required this.leg});
+class _LegStopRow extends StatelessWidget {
+  const _LegStopRow({
+    required this.name,
+    required this.time,
+    required this.timeStyle,
+  });
+
+  final String name;
+  final String time;
+  final TextStyle? timeStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            name,
+            style: Theme.of(context)
+                .textTheme
+                .bodyLarge
+                ?.copyWith(fontWeight: FontWeight.w600),
+          ),
+        ),
+        Text(time, style: timeStyle),
+      ],
+    );
+  }
+}
+
+class _TransferRow extends StatelessWidget {
+  const _TransferRow({required this.leg});
 
   final PlanTransferLeg leg;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: Insets.sm),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.transfer_within_a_station, size: 18),
-          const SizedBox(width: 8),
+          Icon(
+            CupertinoIcons.arrow_right_arrow_left,
+            size: 16,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: Insets.sm),
           Text(
             'Transfer at ${leg.atStop.name} · '
             '${(leg.seconds / 60).ceil()} min wait',
-            style: Theme.of(context).textTheme.bodySmall,
+            style: theme.textTheme.bodySmall
+                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
         ],
       ),

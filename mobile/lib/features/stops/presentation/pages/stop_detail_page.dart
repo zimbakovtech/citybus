@@ -1,9 +1,13 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../app/theme.dart';
+import '../../../../core/widgets/route_badge.dart';
+import '../../../../core/widgets/section_header.dart';
 import '../../../../core/widgets/status_views.dart';
+import '../../data/models/stop_models.dart';
 import '../providers/stops_providers.dart';
 
 /// Stop attributes, the routes serving it, and upcoming departures.
@@ -26,28 +30,34 @@ class StopDetailPage extends ConsumerWidget {
         data: (stop) => RefreshIndicator(
           onRefresh: () async => ref.invalidate(departuresProvider(stopId)),
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: Insets.page,
             children: [
               if (stop.code != null)
-                Text('Stop code: ${stop.code}',
-                    style: Theme.of(context).textTheme.bodySmall),
-              const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.only(top: Insets.sm),
+                  child: Text(
+                    'Stop code ${stop.code}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ),
+              const SectionHeader(title: 'Lines'),
               Wrap(
-                spacing: 8,
+                spacing: Insets.sm,
+                runSpacing: Insets.sm,
                 children: [
                   for (final route in stop.routes)
-                    Chip(
-                      label: Text(route.shortName ?? route.longName ?? '?'),
-                      backgroundColor: routeColor(route.color).withValues(alpha: 0.15),
+                    RouteBadge(
+                      label: route.shortName ?? '?',
+                      color: route.color,
+                      size: 36,
                     ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Text('Departures (next hour)',
-                  style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
-              const Divider(height: 1),
-              _DeparturesList(stopId: stopId),
+              const SectionHeader(title: 'Departures — next hour'),
+              _DeparturesCard(stopId: stopId),
+              const SizedBox(height: Insets.xl),
             ],
           ),
         ),
@@ -56,8 +66,8 @@ class StopDetailPage extends ConsumerWidget {
   }
 }
 
-class _DeparturesList extends ConsumerWidget {
-  const _DeparturesList({required this.stopId});
+class _DeparturesCard extends ConsumerWidget {
+  const _DeparturesCard({required this.stopId});
 
   final int stopId;
 
@@ -65,33 +75,66 @@ class _DeparturesList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final departures = ref.watch(departuresProvider(stopId));
     return departures.when(
-      loading: () => const Padding(padding: EdgeInsets.all(24), child: LoadingView()),
+      loading: () => const Padding(
+        padding: EdgeInsets.all(Insets.xl),
+        child: LoadingView(),
+      ),
       error: (error, _) => ErrorView(
         message: error.toString(),
         onRetry: () => ref.invalidate(departuresProvider(stopId)),
       ),
       data: (items) => items.isEmpty
-          ? const EmptyView(message: 'No departures in the next hour.')
-          : Column(
-              children: [
-                for (final departure in items)
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: CircleAvatar(
-                      backgroundColor: routeColor(departure.route.color),
-                      child: Text(
-                        departure.route.shortName ?? '?',
-                        style: const TextStyle(color: Colors.white, fontSize: 13),
-                      ),
-                    ),
-                    title: Text(departure.headsign ?? departure.route.longName ?? ''),
-                    trailing: Text(
-                      DateFormat.Hm().format(departure.departureAt),
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-              ],
+          ? const EmptyView(
+              message: 'No departures in the next hour.',
+              icon: CupertinoIcons.clock,
+            )
+          : Card(
+              child: Column(
+                children: [
+                  for (final (index, departure) in items.indexed) ...[
+                    if (index > 0) const Divider(indent: 72),
+                    _DepartureTile(departure: departure),
+                  ],
+                ],
+              ),
             ),
+    );
+  }
+}
+
+class _DepartureTile extends StatelessWidget {
+  const _DepartureTile({required this.departure});
+
+  final Departure departure;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final minutesAway =
+        departure.departureAt.difference(DateTime.now()).inMinutes;
+    return ListTile(
+      leading: RouteBadge(
+        label: departure.route.shortName ?? '?',
+        color: departure.route.color,
+      ),
+      title: Text(
+        departure.headsign ?? departure.route.longName ?? '',
+        style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+      ),
+      subtitle: minutesAway >= 0 && minutesAway <= 90
+          ? Text(
+              minutesAway == 0 ? 'Due now' : 'In $minutesAway min',
+              style: theme.textTheme.bodySmall
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            )
+          : null,
+      trailing: Text(
+        DateFormat.Hm().format(departure.departureAt),
+        style: theme.textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.w700,
+          fontFeatures: const [FontFeature.tabularFigures()],
+        ),
+      ),
     );
   }
 }

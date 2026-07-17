@@ -1,7 +1,10 @@
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/theme.dart';
+import '../../../../core/widgets/route_badge.dart';
 import '../../../../core/widgets/status_views.dart';
 import '../providers/stops_providers.dart';
 
@@ -23,10 +26,10 @@ class _StopsPageState extends ConsumerState<StopsPage> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            padding: Insets.page,
             child: SearchBar(
               hintText: 'Search stops…',
-              leading: const Icon(Icons.search),
+              leading: const Icon(CupertinoIcons.search, size: 20),
               onChanged: (value) {
                 setState(() => _nearbyMode = false);
                 ref.read(stopSearchQueryProvider.notifier).set(value);
@@ -34,11 +37,19 @@ class _StopsPageState extends ConsumerState<StopsPage> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: Insets.md),
             child: SegmentedButton<bool>(
               segments: const [
-                ButtonSegment(value: false, label: Text('Search'), icon: Icon(Icons.list)),
-                ButtonSegment(value: true, label: Text('Nearby'), icon: Icon(Icons.my_location)),
+                ButtonSegment(
+                  value: false,
+                  label: Text('Search'),
+                  icon: Icon(CupertinoIcons.search, size: 18),
+                ),
+                ButtonSegment(
+                  value: true,
+                  label: Text('Nearby'),
+                  icon: Icon(CupertinoIcons.location, size: 18),
+                ),
               ],
               selected: {_nearbyMode},
               onSelectionChanged: (selection) =>
@@ -48,6 +59,44 @@ class _StopsPageState extends ConsumerState<StopsPage> {
           Expanded(child: _nearbyMode ? const _NearbyList() : const _SearchList()),
         ],
       ),
+    );
+  }
+}
+
+class _StopTile extends StatelessWidget {
+  const _StopTile({
+    required this.stopId,
+    required this.name,
+    required this.icon,
+    this.subtitle,
+  });
+
+  final int stopId;
+  final String name;
+  final IconData icon;
+  final String? subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: IconBadge(icon: icon),
+      title: Text(
+        name,
+        style: Theme.of(context)
+            .textTheme
+            .bodyLarge
+            ?.copyWith(fontWeight: FontWeight.w600),
+      ),
+      subtitle: subtitle == null
+          ? null
+          : Text(
+              subtitle!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+      trailing: const Icon(CupertinoIcons.chevron_right, size: 16),
+      onTap: () => context.go('/stops/$stopId'),
     );
   }
 }
@@ -65,16 +114,21 @@ class _SearchList extends ConsumerWidget {
         onRetry: () => ref.invalidate(stopSearchResultsProvider),
       ),
       data: (stops) => stops.isEmpty
-          ? const EmptyView(message: 'No stops match your search.')
-          : ListView.builder(
+          ? const EmptyView(
+              message: 'No stops match your search.',
+              icon: CupertinoIcons.search,
+            )
+          : ListView.separated(
               itemCount: stops.length,
+              separatorBuilder: (_, _) =>
+                  const Divider(indent: 72, endIndent: Insets.lg),
               itemBuilder: (context, index) {
                 final stop = stops[index];
-                return ListTile(
-                  leading: const Icon(Icons.pin_drop_outlined),
-                  title: Text(stop.name),
-                  subtitle: stop.code == null ? null : Text(stop.code!),
-                  onTap: () => context.go('/stops/${stop.id}'),
+                return _StopTile(
+                  stopId: stop.id,
+                  name: stop.name,
+                  icon: CupertinoIcons.map_pin_ellipse,
+                  subtitle: stop.code,
                 );
               },
             ),
@@ -95,16 +149,21 @@ class _NearbyList extends ConsumerWidget {
         onRetry: () => ref.invalidate(nearbyStopsProvider),
       ),
       data: (stops) => stops.isEmpty
-          ? const EmptyView(message: 'No stops within 1 km.')
-          : ListView.builder(
+          ? const EmptyView(
+              message: 'No stops within 1 km.',
+              icon: CupertinoIcons.location,
+            )
+          : ListView.separated(
               itemCount: stops.length,
+              separatorBuilder: (_, _) =>
+                  const Divider(indent: 72, endIndent: Insets.lg),
               itemBuilder: (context, index) {
                 final stop = stops[index];
-                return ListTile(
-                  leading: const Icon(Icons.near_me_outlined),
-                  title: Text(stop.name),
-                  subtitle: Text('${stop.distanceM.round()} m away'),
-                  onTap: () => context.go('/stops/${stop.id}'),
+                return _StopTile(
+                  stopId: stop.id,
+                  name: stop.name,
+                  icon: CupertinoIcons.location,
+                  subtitle: '${stop.distanceM.round()} m away',
                 );
               },
             ),
