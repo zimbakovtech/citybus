@@ -1,14 +1,12 @@
 # CityBus — City Bus Transit System
 
-[![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?logo=githubactions&logoColor=white)](.github/workflows/ci.yml)
+[![CI](https://github.com/zimbakovtech/citybus/actions/workflows/ci.yml/badge.svg)](https://github.com/zimbakovtech/citybus/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](backend/requirements.txt)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.116-009688?logo=fastapi&logoColor=white)](backend/app/main.py)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL_16-PostGIS_3.5-4169E1?logo=postgresql&logoColor=white)](database/sql)
 [![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](mobile/pubspec.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-<!-- After pushing to GitHub, swap the CI badge for the live one:
-[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml) -->
 
 Final project for the **Databases** course: a public-transport system built
 around a **PostgreSQL 16 + PostGIS** database storing a GTFS-modeled bus
@@ -241,6 +239,12 @@ Interactive docs at **http://localhost:8000/docs** once the backend runs.
 - Out of scope by design: authentication, accounts, payments, deployment —
   the focus is the database.
 
+---
+
 ## License
 
-[MIT](LICENSE).
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+*Damjan Zimbakov & Filip Karamachoski - FINKI Databases Course*
