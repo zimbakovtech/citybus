@@ -16,46 +16,54 @@ final router = GoRouter(
     StatefulShellRoute.indexedStack(
       builder: (context, state, shell) => _ShellScaffold(shell: shell),
       branches: [
-        StatefulShellBranch(routes: [
-          GoRoute(
-            path: '/stops',
-            builder: (context, state) => const StopsPage(),
-            routes: [
-              GoRoute(
-                path: ':id',
-                builder: (context, state) => StopDetailPage(
-                  stopId: int.parse(state.pathParameters['id']!),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/stops',
+              builder: (context, state) => const StopsPage(),
+              routes: [
+                GoRoute(
+                  path: ':id',
+                  builder: (context, state) => StopDetailPage(
+                    stopId: int.parse(state.pathParameters['id']!),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ]),
-        StatefulShellBranch(routes: [
-          GoRoute(
-            path: '/routes',
-            builder: (context, state) => const RoutesPage(),
-            routes: [
-              GoRoute(
-                path: ':id',
-                builder: (context, state) => RouteDetailPage(
-                  routeId: int.parse(state.pathParameters['id']!),
+              ],
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/routes',
+              builder: (context, state) => const RoutesPage(),
+              routes: [
+                GoRoute(
+                  path: ':id',
+                  builder: (context, state) => RouteDetailPage(
+                    routeId: int.parse(state.pathParameters['id']!),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ]),
-        StatefulShellBranch(routes: [
-          GoRoute(
-            path: '/planner',
-            builder: (context, state) => const PlannerPage(),
-          ),
-        ]),
-        StatefulShellBranch(routes: [
-          GoRoute(
-            path: '/live',
-            builder: (context, state) => const LivePage(),
-          ),
-        ]),
+              ],
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/planner',
+              builder: (context, state) => const PlannerPage(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/live',
+              builder: (context, state) => const LivePage(),
+            ),
+          ],
+        ),
       ],
     ),
   ],
@@ -86,10 +94,7 @@ class _ShellScaffold extends StatelessWidget {
             icon: Icon(CupertinoIcons.arrow_swap),
             label: 'Planner',
           ),
-          NavigationDestination(
-            icon: Icon(CupertinoIcons.bus),
-            label: 'Live',
-          ),
+          NavigationDestination(icon: Icon(CupertinoIcons.bus), label: 'Live'),
         ],
       ),
     );

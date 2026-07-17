@@ -53,24 +53,22 @@ class RoutesPage extends ConsumerWidget {
                           ),
                           title: Text(
                             route.longName ?? 'Line ${route.shortName}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge
+                            style: Theme.of(context).textTheme.bodyLarge
                                 ?.copyWith(fontWeight: FontWeight.w600),
                           ),
                           subtitle: Text(
                             'Line ${route.shortName}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
+                            style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                 ),
                           ),
-                          trailing:
-                              const Icon(CupertinoIcons.chevron_right, size: 16),
+                          trailing: const Icon(
+                            CupertinoIcons.chevron_right,
+                            size: 16,
+                          ),
                           onTap: () => context.go('/routes/${route.id}'),
                         );
                       },

@@ -10,7 +10,8 @@ sealed class Failure implements Exception {
 }
 
 class NetworkFailure extends Failure {
-  const NetworkFailure() : super('Could not reach the server. Is the API running?');
+  const NetworkFailure()
+    : super('Could not reach the server. Is the API running?');
 }
 
 class NotFoundFailure extends Failure {

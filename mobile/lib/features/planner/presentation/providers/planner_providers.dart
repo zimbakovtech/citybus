@@ -54,7 +54,8 @@ class PlannerForm extends Notifier<PlannerFormState> {
   @override
   PlannerFormState build() => const PlannerFormState();
 
-  void setOrigin(PlanEndpoint endpoint) => state = state.copyWith(origin: endpoint);
+  void setOrigin(PlanEndpoint endpoint) =>
+      state = state.copyWith(origin: endpoint);
 
   void setDestination(PlanEndpoint endpoint) =>
       state = state.copyWith(destination: endpoint);
@@ -62,7 +63,9 @@ class PlannerForm extends Notifier<PlannerFormState> {
   void setDepartAt(DateTime value) => state = state.copyWith(departAt: value);
 }
 
-final plannerFormProvider = NotifierProvider<PlannerForm, PlannerFormState>(PlannerForm.new);
+final plannerFormProvider = NotifierProvider<PlannerForm, PlannerFormState>(
+  PlannerForm.new,
+);
 
 /// Runs the plan request on demand; null means "not asked yet".
 class PlanController extends AsyncNotifier<PlanResponse?> {

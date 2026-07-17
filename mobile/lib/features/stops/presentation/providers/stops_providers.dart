@@ -19,7 +19,9 @@ class StopSearchQuery extends Notifier<String> {
   void set(String value) => state = value;
 }
 
-final stopSearchQueryProvider = NotifierProvider<StopSearchQuery, String>(StopSearchQuery.new);
+final stopSearchQueryProvider = NotifierProvider<StopSearchQuery, String>(
+  StopSearchQuery.new,
+);
 
 /// Server-side search results for the current query.
 final stopSearchResultsProvider = FutureProvider<List<StopSummary>>((ref) {

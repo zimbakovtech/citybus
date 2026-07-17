@@ -62,10 +62,9 @@ class LivePage extends ConsumerWidget {
                       const SizedBox(width: Insets.sm),
                       Text(
                         '${fleet.length} on the road',
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelLarge
-                            ?.copyWith(fontWeight: FontWeight.w600),
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
@@ -85,10 +84,10 @@ class _VehicleMarker extends StatelessWidget {
   final LiveVehicle vehicle;
 
   Color get _delayColor => switch (vehicle.delaySeconds) {
-        <= 60 => const Color(0xFF2E7D32),
-        <= 240 => const Color(0xFFE65100),
-        _ => const Color(0xFFC62828),
-      };
+    <= 60 => const Color(0xFF2E7D32),
+    <= 240 => const Color(0xFFE65100),
+    _ => const Color(0xFFC62828),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +111,10 @@ class _VehicleMarker extends StatelessWidget {
         ),
         const SizedBox(height: 2),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: Insets.xs, vertical: 1),
+          padding: const EdgeInsets.symmetric(
+            horizontal: Insets.xs,
+            vertical: 1,
+          ),
           decoration: BoxDecoration(
             color: _delayColor,
             borderRadius: BorderRadius.circular(Radii.sm - 2),

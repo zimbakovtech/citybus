@@ -43,9 +43,9 @@ ThemeData buildTheme(Brightness brightness) {
     cardTheme: base.cardTheme.copyWith(
       elevation: 0,
       margin: EdgeInsets.zero,
-      shape: shape(Radii.md).copyWith(
-        side: BorderSide(color: scheme.outlineVariant),
-      ),
+      shape: shape(
+        Radii.md,
+      ).copyWith(side: BorderSide(color: scheme.outlineVariant)),
       color: scheme.surface,
       clipBehavior: Clip.antiAlias,
     ),
@@ -69,7 +69,9 @@ ThemeData buildTheme(Brightness brightness) {
       style: FilledButton.styleFrom(
         shape: shape(Radii.md),
         minimumSize: const Size.fromHeight(48),
-        textStyle: base.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+        textStyle: base.textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.w600,
+        ),
       ),
     ),
     navigationBarTheme: NavigationBarThemeData(

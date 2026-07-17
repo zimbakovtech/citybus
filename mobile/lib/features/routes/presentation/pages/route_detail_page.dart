@@ -32,9 +32,7 @@ class _RouteDetailPageState extends ConsumerState<RouteDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          detail.value == null
-              ? 'Route'
-              : 'Line ${detail.value!.shortName}',
+          detail.value == null ? 'Route' : 'Line ${detail.value!.shortName}',
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(56),
@@ -67,8 +65,8 @@ class _RouteDetailPageState extends ConsumerState<RouteDetailPage> {
                 child: Text(
                   route.longName!,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             Expanded(
@@ -79,10 +77,13 @@ class _RouteDetailPageState extends ConsumerState<RouteDetailPage> {
                 data: (geo) {
                   final points = [
                     // GeoJSON coordinates are [lon, lat]
-                    for (final pair in geo.coordinates) LatLng(pair[1], pair[0]),
+                    for (final pair in geo.coordinates)
+                      LatLng(pair[1], pair[0]),
                   ];
                   return OsmMap(
-                    center: points.isEmpty ? skopjeCenter : points[points.length ~/ 2],
+                    center: points.isEmpty
+                        ? skopjeCenter
+                        : points[points.length ~/ 2],
                     layers: [
                       PolylineLayer(
                         polylines: [
@@ -95,7 +96,8 @@ class _RouteDetailPageState extends ConsumerState<RouteDetailPage> {
                       ),
                       MarkerLayer(
                         markers: [
-                          for (final stop in stops.value ?? const <StopSummary>[])
+                          for (final stop
+                              in stops.value ?? const <StopSummary>[])
                             Marker(
                               point: LatLng(stop.lat, stop.lon),
                               width: 12,
@@ -140,10 +142,10 @@ class _RouteDetailPageState extends ConsumerState<RouteDetailPage> {
                       title: Text(
                         items[index].name,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: isTerminus
-                                  ? FontWeight.w700
-                                  : FontWeight.w400,
-                            ),
+                          fontWeight: isTerminus
+                              ? FontWeight.w700
+                              : FontWeight.w400,
+                        ),
                       ),
                     );
                   },

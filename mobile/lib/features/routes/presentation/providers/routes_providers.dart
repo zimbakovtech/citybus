@@ -18,8 +18,9 @@ class RouteSearchQuery extends Notifier<String> {
   void set(String value) => state = value;
 }
 
-final routeSearchQueryProvider =
-    NotifierProvider<RouteSearchQuery, String>(RouteSearchQuery.new);
+final routeSearchQueryProvider = NotifierProvider<RouteSearchQuery, String>(
+  RouteSearchQuery.new,
+);
 
 final routeSearchResultsProvider = FutureProvider<List<RouteSummary>>((ref) {
   final query = ref.watch(routeSearchQueryProvider);
@@ -33,13 +34,15 @@ final routeDetailProvider = FutureProvider.family<RouteDetail, int>(
 /// (routeId, directionId) pair for direction-dependent lookups.
 typedef RouteDirection = ({int routeId, int directionId});
 
-final routeStopsProvider = FutureProvider.family<List<StopSummary>, RouteDirection>(
-  (ref, args) => ref
-      .watch(routesRepositoryProvider)
-      .orderedStops(args.routeId, directionId: args.directionId),
-);
+final routeStopsProvider =
+    FutureProvider.family<List<StopSummary>, RouteDirection>(
+      (ref, args) => ref
+          .watch(routesRepositoryProvider)
+          .orderedStops(args.routeId, directionId: args.directionId),
+    );
 
 final routeShapeProvider = FutureProvider.family<RouteShape, RouteDirection>(
-  (ref, args) =>
-      ref.watch(routesRepositoryProvider).shape(args.routeId, directionId: args.directionId),
+  (ref, args) => ref
+      .watch(routesRepositoryProvider)
+      .shape(args.routeId, directionId: args.directionId),
 );

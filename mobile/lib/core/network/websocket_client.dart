@@ -9,9 +9,9 @@ import '../errors/failures.dart';
 /// exposes decoded JSON messages as a stream.
 class RealtimeSocket {
   RealtimeSocket({String? url})
-      : _channel = WebSocketChannel.connect(
-          Uri.parse(url ?? '${Env.wsBaseUrl}/ws/realtime'),
-        );
+    : _channel = WebSocketChannel.connect(
+        Uri.parse(url ?? '${Env.wsBaseUrl}/ws/realtime'),
+      );
 
   final WebSocketChannel _channel;
 

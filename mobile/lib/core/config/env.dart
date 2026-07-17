@@ -11,6 +11,7 @@ abstract final class Env {
   );
 
   /// ws:// twin of [apiBaseUrl], for the realtime WebSocket.
-  static String get wsBaseUrl =>
-      apiBaseUrl.replaceFirst('http://', 'ws://').replaceFirst('https://', 'wss://');
+  static String get wsBaseUrl => apiBaseUrl
+      .replaceFirst('http://', 'ws://')
+      .replaceFirst('https://', 'wss://');
 }

@@ -6,7 +6,12 @@ import '../../app/theme.dart';
 /// the route's brand color. One shared widget so lists, departures, planner
 /// legs and map markers all match.
 class RouteBadge extends StatelessWidget {
-  const RouteBadge({super.key, required this.label, this.color, this.size = 40});
+  const RouteBadge({
+    super.key,
+    required this.label,
+    this.color,
+    this.size = 40,
+  });
 
   /// Route short name, e.g. '15'.
   final String label;

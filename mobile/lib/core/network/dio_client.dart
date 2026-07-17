@@ -24,8 +24,7 @@ class _FailureInterceptor extends Interceptor {
     final failure = switch (err.type) {
       DioExceptionType.connectionError ||
       DioExceptionType.connectionTimeout ||
-      DioExceptionType.receiveTimeout =>
-        const NetworkFailure(),
+      DioExceptionType.receiveTimeout => const NetworkFailure(),
       DioExceptionType.badResponse when err.response?.statusCode == 404 =>
         NotFoundFailure(_detail(err) ?? 'Not found'),
       _ => ServerFailure(_detail(err) ?? 'Unexpected server error'),
@@ -35,14 +34,16 @@ class _FailureInterceptor extends Interceptor {
 
   String? _detail(DioException err) {
     final data = err.response?.data;
-    if (data is Map && data['detail'] is String) return data['detail'] as String;
+    if (data is Map && data['detail'] is String)
+      return data['detail'] as String;
     return null;
   }
 }
 
 /// Unwraps the [Failure] placed on a [DioException] by the interceptor.
 Failure asFailure(Object error) {
-  if (error is DioException && error.error is Failure) return error.error! as Failure;
+  if (error is DioException && error.error is Failure)
+    return error.error! as Failure;
   if (error is Failure) return error;
   return ServerFailure(error.toString());
 }

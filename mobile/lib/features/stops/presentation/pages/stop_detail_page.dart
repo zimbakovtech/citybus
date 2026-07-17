@@ -38,8 +38,8 @@ class StopDetailPage extends ConsumerWidget {
                   child: Text(
                     'Stop code ${stop.code}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               const SectionHeader(title: 'Lines'),
@@ -110,8 +110,9 @@ class _DepartureTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final minutesAway =
-        departure.departureAt.difference(DateTime.now()).inMinutes;
+    final minutesAway = departure.departureAt
+        .difference(DateTime.now())
+        .inMinutes;
     return ListTile(
       leading: RouteBadge(
         label: departure.route.shortName ?? '?',
@@ -124,8 +125,9 @@ class _DepartureTile extends StatelessWidget {
       subtitle: minutesAway >= 0 && minutesAway <= 90
           ? Text(
               minutesAway == 0 ? 'Due now' : 'In $minutesAway min',
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             )
           : null,
       trailing: Text(

@@ -35,8 +35,9 @@ class PlannerPage extends ConsumerWidget {
                   label: 'From',
                   icon: CupertinoIcons.smallcircle_fill_circle,
                   endpoint: form.origin,
-                  onChanged: (endpoint) =>
-                      ref.read(plannerFormProvider.notifier).setOrigin(endpoint),
+                  onChanged: (endpoint) => ref
+                      .read(plannerFormProvider.notifier)
+                      .setOrigin(endpoint),
                 ),
                 const Divider(indent: 56),
                 _EndpointTile(
@@ -105,8 +106,9 @@ class _EndpointTile extends ConsumerWidget {
       leading: Icon(icon, size: 22, color: theme.colorScheme.primary),
       title: Text(
         label,
-        style: theme.textTheme.labelSmall
-            ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
       ),
       subtitle: Text(
         value,
@@ -148,8 +150,9 @@ class _DepartureTimeTile extends ConsumerWidget {
       ),
       title: Text(
         'Departure',
-        style: theme.textTheme.labelSmall
-            ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
       ),
       subtitle: Text(
         form.departAt == null
@@ -172,7 +175,9 @@ class _DepartureTimeTile extends ConsumerWidget {
           initialTime: TimeOfDay.fromDateTime(form.departAt ?? now),
         );
         if (time == null) return;
-        ref.read(plannerFormProvider.notifier).setDepartAt(
+        ref
+            .read(plannerFormProvider.notifier)
+            .setDepartAt(
               DateTime(date.year, date.month, date.day, time.hour, time.minute),
             );
       },
@@ -195,7 +200,9 @@ class _StopPickerSheetState extends ConsumerState<_StopPickerSheet> {
   Widget build(BuildContext context) {
     final repository = ref.watch(stopsRepositoryProvider);
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: SizedBox(
         height: MediaQuery.of(context).size.height * 0.7,
         child: Column(
@@ -224,8 +231,9 @@ class _StopPickerSheetState extends ConsumerState<_StopPickerSheet> {
                     separatorBuilder: (_, _) =>
                         const Divider(indent: 72, endIndent: Insets.lg),
                     itemBuilder: (context, index) => ListTile(
-                      leading:
-                          const IconBadge(icon: CupertinoIcons.map_pin_ellipse),
+                      leading: const IconBadge(
+                        icon: CupertinoIcons.map_pin_ellipse,
+                      ),
                       title: Text(stops[index].name),
                       onTap: () => Navigator.pop(context, stops[index]),
                     ),
@@ -276,8 +284,9 @@ class _PlanResult extends StatelessWidget {
                 Text(
                   '${duration.inMinutes} min · '
                   '${plan.transfers} transfer${plan.transfers == 1 ? '' : 's'}',
-                  style: theme.textTheme.bodyMedium
-                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -312,7 +321,10 @@ class _RideLegCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            RouteBadge(label: leg.route.shortName ?? '?', color: leg.route.color),
+            RouteBadge(
+              label: leg.route.shortName ?? '?',
+              color: leg.route.color,
+            ),
             const SizedBox(width: Insets.md),
             Expanded(
               child: Column(
@@ -327,8 +339,9 @@ class _RideLegCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: Insets.xs),
                     child: Text(
                       '${leg.numStops} stops',
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                   _LegStopRow(
@@ -364,10 +377,9 @@ class _LegStopRow extends StatelessWidget {
         Expanded(
           child: Text(
             name,
-            style: Theme.of(context)
-                .textTheme
-                .bodyLarge
-                ?.copyWith(fontWeight: FontWeight.w600),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
           ),
         ),
         Text(time, style: timeStyle),
@@ -398,8 +410,9 @@ class _TransferRow extends StatelessWidget {
           Text(
             'Transfer at ${leg.atStop.name} · '
             '${(leg.seconds / 60).ceil()} min wait',
-            style: theme.textTheme.bodySmall
-                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),

@@ -56,7 +56,9 @@ class _StopsPageState extends ConsumerState<StopsPage> {
                   setState(() => _nearbyMode = selection.first),
             ),
           ),
-          Expanded(child: _nearbyMode ? const _NearbyList() : const _SearchList()),
+          Expanded(
+            child: _nearbyMode ? const _NearbyList() : const _SearchList(),
+          ),
         ],
       ),
     );
@@ -82,18 +84,17 @@ class _StopTile extends StatelessWidget {
       leading: IconBadge(icon: icon),
       title: Text(
         name,
-        style: Theme.of(context)
-            .textTheme
-            .bodyLarge
-            ?.copyWith(fontWeight: FontWeight.w600),
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
       ),
       subtitle: subtitle == null
           ? null
           : Text(
               subtitle!,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
       trailing: const Icon(CupertinoIcons.chevron_right, size: 16),
       onTap: () => context.go('/stops/$stopId'),
