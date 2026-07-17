@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/live_tracking/presentation/pages/live_page.dart';
+import '../features/planner/presentation/pages/planner_page.dart';
 import '../features/routes/presentation/pages/route_detail_page.dart';
 import '../features/routes/presentation/pages/routes_page.dart';
 import '../features/stops/presentation/pages/stop_detail_page.dart';
@@ -44,13 +46,13 @@ final router = GoRouter(
         StatefulShellBranch(routes: [
           GoRoute(
             path: '/planner',
-            builder: (context, state) => const _PlaceholderPage(title: 'Planner'),
+            builder: (context, state) => const PlannerPage(),
           ),
         ]),
         StatefulShellBranch(routes: [
           GoRoute(
             path: '/live',
-            builder: (context, state) => const _PlaceholderPage(title: 'Live'),
+            builder: (context, state) => const LivePage(),
           ),
         ]),
       ],
@@ -77,20 +79,6 @@ class _ShellScaffold extends StatelessWidget {
           NavigationDestination(icon: Icon(Icons.directions_bus_outlined), label: 'Live'),
         ],
       ),
-    );
-  }
-}
-
-class _PlaceholderPage extends StatelessWidget {
-  const _PlaceholderPage({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(child: Text('$title — coming soon')),
     );
   }
 }
