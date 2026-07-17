@@ -1,6 +1,9 @@
 services:
   db:
     image: postgis/postgis:16-3.5
+    # the official postgis image only ships amd64; on Apple Silicon it runs
+    # via Rosetta emulation, which is fine for local development
+    platform: linux/amd64
     container_name: citybus-db
     environment:
       POSTGRES_DB: citybus

@@ -1,0 +1,6 @@
+route_id,agency_id,route_short_name,route_long_name,route_type,route_color,route_text_color
+R2,CITYBUS,2,Gjorche Petrov - Novo Lisice,3,D32F2F,FFFFFF
+R5,CITYBUS,5,Butel - Kisela Voda,3,1976D2,FFFFFF
+R15,CITYBUS,15,Gradski Park - Avtokomanda,3,388E3C,FFFFFF
+R22,CITYBUS,22,Klinichki Centar - Zelezara,3,F57C00,FFFFFF
+R24,CITYBUS,24,Kisela Voda - Drachevo,3,7B1FA2,FFFFFF
