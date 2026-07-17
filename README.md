@@ -177,7 +177,14 @@ flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000   # 10.0.2.2 = host 
 ```
 
 iOS simulator: use `--dart-define=API_BASE_URL=http://localhost:8000`.
+Physical device: start the API with `--host 0.0.0.0` (the `make api` target
+does) and use `http://<your-machine-LAN-IP>:8000`.
 Or use the Makefile: `make up`, `make seed`, `make api`, `make test`.
+
+> The app has no offline mode by design — if screens show
+> "Could not reach the server", the backend isn't running (or isn't reachable
+> from the device): check `docker ps` shows `citybus-db` healthy and that
+> `make api` is running.
 
 To import a real GTFS feed instead of the sample one, point `GTFS_ZIP_PATH`
 in `backend/.env` at a `.zip` or a directory of `.txt` files and re-run the

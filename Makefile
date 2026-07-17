@@ -20,7 +20,7 @@ import:
 seed: migrate import
 
 api:
-	cd backend && .venv/bin/uvicorn app.main:app --reload
+	cd backend && .venv/bin/uvicorn app.main:app --reload --host 0.0.0.0
 
 test:
 	cd backend && .venv/bin/python -m pytest
