@@ -1,5 +1,15 @@
 # CityBus — City Bus Transit System
 
+[![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?logo=githubactions&logoColor=white)](.github/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](backend/requirements.txt)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.116-009688?logo=fastapi&logoColor=white)](backend/app/main.py)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL_16-PostGIS_3.5-4169E1?logo=postgresql&logoColor=white)](database/sql)
+[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](mobile/pubspec.yaml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+<!-- After pushing to GitHub, swap the CI badge for the live one:
+[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml) -->
+
 Final project for the **Databases** course: a public-transport system built
 around a **PostgreSQL 16 + PostGIS** database storing a GTFS-modeled bus
 network, with a **FastAPI** backend (REST + WebSockets) and a **Flutter**
@@ -10,6 +20,27 @@ backend and app exist to prove the data model works end to end.
 The repo ships a synthetic but realistic GTFS feed for **Skopje** (5 bus
 lines, 30 stops, weekday/weekend services, a holiday exception and an
 after-midnight night trip), so everything runs fully offline.
+
+## At a glance
+
+| | |
+|---|---|
+| Database | PostgreSQL 16 + PostGIS 3.5 (Docker), `pg_trgm` for text search |
+| Backend | FastAPI, SQLAlchemy 2 (async) + asyncpg, Alembic, Pydantic v2 |
+| Mobile | Flutter — Riverpod 3, GoRouter, Dio, freezed, flutter_map (OSM) |
+| Seed data | committed synthetic GTFS feed: 1 agency, 5 routes, 30 stops, 682 trips, 6 396 stop_times |
+| Planner | Connection Scan Algorithm, transfer-aware, after-midnight-correct |
+| Realtime | scheduled-position simulation → `vehicle_positions` + WebSocket broadcast |
+| Tests | pytest suite against the seeded db · Flutter unit + widget tests · CI in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |
+
+## Repository layout
+
+```
+database/   canonical SQL schema, indexes, seed GTFS feed (+ generator)
+backend/    FastAPI app, importer, planner, realtime, tests
+mobile/     Flutter app (feature-first: stops, routes, planner, live)
+docs/       architecture, database design discussion, ERD source
+```
 
 ## Architecture
 
@@ -171,12 +202,18 @@ Interactive docs at **http://localhost:8000/docs** once the backend runs.
 
 ## Testing
 
-- `make test` / `cd backend && pytest` — 34 tests: API (search, nearby,
-  ordered stops, departures incl. after-midnight + holiday), CSA unit fixture,
-  planner API with known origin→destination, realtime tick + WebSocket.
-  Requires the database up and seeded (`make seed`).
-- `cd mobile && flutter test` — model (de)serialization, a provider test and
-  a widget test. `flutter analyze` is clean.
+- `make test` / `cd backend && pytest` — API tests (search, nearby, ordered
+  stops, departures incl. after-midnight + holiday), CSA unit fixture with
+  known answers, planner API with a known origin→destination, GTFS time
+  parsing, realtime tick + WebSocket. Requires the database up and seeded
+  (`make seed`).
+- `cd mobile && flutter test` — model (de)serialization (incl. the plan-leg
+  union), provider tests with a fake repository, a planner-controller test
+  and a widget test. `flutter analyze` is clean.
+- CI ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs both suites
+  on every push/PR: the backend job boots a PostGIS service container,
+  migrates, imports the seed feed and runs lint + pytest; the mobile job runs
+  build_runner, `flutter analyze` and `flutter test`.
 
 ## Screenshots
 
@@ -196,3 +233,7 @@ Interactive docs at **http://localhost:8000/docs** once the backend runs.
   (API key).
 - Out of scope by design: authentication, accounts, payments, deployment —
   the focus is the database.
+
+## License
+
+[MIT](LICENSE).
