@@ -19,6 +19,9 @@ The repo ships a synthetic but realistic GTFS feed for **Skopje** (5 bus
 lines, 30 stops, weekday/weekend services, a holiday exception and an
 after-midnight night trip), so everything runs fully offline.
 
+**Project website:** [citybus.zimbakov.dev](https://citybus.zimbakov.dev) —
+deployed from [`website/`](website) via GitHub Pages on every `v*.*.*` tag.
+
 ## At a glance
 
 | | |
@@ -38,6 +41,7 @@ database/   canonical SQL schema, indexes, seed GTFS feed (+ generator)
 backend/    FastAPI app, importer, planner, realtime, tests
 mobile/     Flutter app (feature-first: stops, routes, planner, live)
 docs/       architecture, database design discussion, ERD source
+website/    public project website → https://citybus.zimbakov.dev
 ```
 
 ## Architecture
