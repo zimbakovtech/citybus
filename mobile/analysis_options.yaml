@@ -1,1 +1,42 @@
+# CityBus mobile — static analysis.
+#
+# Baseline: flutter_lints (Flutter team's recommended set). On top of it, a
+# curated set of 20 high-value rules, chosen for this project: correctness of
+# async code, null-safety edges, Flutter widget best practices, and consistent
+# modern Dart style. Deliberately no highly opinionated/noisy rules.
+
 include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    # generated code (committed, but not hand-maintained)
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+
+linter:
+  rules:
+    # --- correctness: async & error handling ---
+    unawaited_futures: true              # a dropped Future is almost always a bug
+    avoid_void_async: true               # async functions should return Future
+    unnecessary_await_in_return: true
+    only_throw_errors: true              # throw Exception/Error, not arbitrary objects
+    # --- correctness: types & null-safety ---
+    always_declare_return_types: true
+    avoid_dynamic_calls: true            # keeps dynamic from silently spreading
+    cast_nullable_to_non_nullable: true  # force explicit null handling, not casts
+    # --- Flutter widget best practices / performance ---
+    use_colored_box: true                # cheaper than Container(color: ...)
+    use_decorated_box: true              # cheaper than Container(decoration: ...)
+    sized_box_shrink_expand: true        # SizedBox.shrink()/.expand() over 0/inf
+    # --- maintainability & readability ---
+    prefer_final_locals: true
+    prefer_final_in_for_each: true
+    omit_local_variable_types: true      # idiomatic Dart: infer local types
+    directives_ordering: true            # deterministic import order
+    unnecessary_lambdas: true
+    unnecessary_parenthesis: true
+    avoid_redundant_argument_values: true
+    avoid_unused_constructor_parameters: true
+    avoid_bool_literals_in_conditional_expressions: true
+    # --- style consistency ---
+    prefer_single_quotes: true

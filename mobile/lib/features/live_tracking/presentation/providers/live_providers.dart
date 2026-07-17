@@ -9,7 +9,7 @@ import '../../data/models/live_models.dart';
 final liveVehiclesProvider =
     StreamProvider.autoDispose<Map<String, LiveVehicle>>((ref) async* {
   final socket = RealtimeSocket();
-  ref.onDispose(() => socket.close());
+  ref.onDispose(socket.close);
 
   final vehicles = <String, LiveVehicle>{};
   await for (final message in socket.messages) {

@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import '../../../../app/theme.dart';
 import '../../../../core/widgets/osm_map.dart';
 import '../../../../core/widgets/status_views.dart';
+import '../../../stops/data/models/stop_models.dart';
 import '../providers/routes_providers.dart';
 
 /// Route polyline on the map plus its ordered stops, per direction.
@@ -94,7 +95,7 @@ class _RouteDetailPageState extends ConsumerState<RouteDetailPage> {
                       ),
                       MarkerLayer(
                         markers: [
-                          for (final stop in stops.value ?? [])
+                          for (final stop in stops.value ?? const <StopSummary>[])
                             Marker(
                               point: LatLng(stop.lat, stop.lon),
                               width: 12,
