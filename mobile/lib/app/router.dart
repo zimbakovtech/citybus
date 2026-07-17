@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/routes/presentation/pages/route_detail_page.dart';
+import '../features/routes/presentation/pages/routes_page.dart';
+import '../features/stops/presentation/pages/stop_detail_page.dart';
+import '../features/stops/presentation/pages/stops_page.dart';
+
 /// App navigation: a bottom-tab shell with one branch per feature.
-/// Feature pages replace these placeholders as they are implemented.
 final router = GoRouter(
   initialLocation: '/stops',
   routes: [
@@ -12,13 +16,29 @@ final router = GoRouter(
         StatefulShellBranch(routes: [
           GoRoute(
             path: '/stops',
-            builder: (context, state) => const _PlaceholderPage(title: 'Stops'),
+            builder: (context, state) => const StopsPage(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (context, state) => StopDetailPage(
+                  stopId: int.parse(state.pathParameters['id']!),
+                ),
+              ),
+            ],
           ),
         ]),
         StatefulShellBranch(routes: [
           GoRoute(
             path: '/routes',
-            builder: (context, state) => const _PlaceholderPage(title: 'Routes'),
+            builder: (context, state) => const RoutesPage(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (context, state) => RouteDetailPage(
+                  routeId: int.parse(state.pathParameters['id']!),
+                ),
+              ),
+            ],
           ),
         ]),
         StatefulShellBranch(routes: [
