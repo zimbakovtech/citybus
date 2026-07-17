@@ -1,0 +1,13 @@
+# Native splash screens (Android + iOS), generated from the bus brand mark.
+# Regenerate after changes with:
+#   dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#FFFFFF"
+  color_dark: "#121212"
+  image: assets/branding/bus.png
+
+  # Android 12+ uses its own splash API (centered icon on a plain background)
+  android_12:
+    image: assets/branding/bus.png
+    color: "#FFFFFF"
+    color_dark: "#121212"
